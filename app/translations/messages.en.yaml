@@ -24,6 +24,6 @@ error:
   telegram:
     notification:
       success:
-        new: 'User %user_id% paid for subscription'
-        renew: 'User %user_id% renewed subscription'
+        new: 'User *%user_id%* paid for subscription'
+        renew: 'User *%user_id%* renewed subscription'
       error: 'Payment error'

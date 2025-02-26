@@ -24,6 +24,6 @@ error:
 telegram:
   notification:
     success:
-      new: 'Пользователь %user_id% оплатил подписку'
-      renew: 'Пользователь %user_id% продлил подписку'
+      new: 'Пользователь *%user_id%* оплатил подписку'
+      renew: 'Пользователь *%user_id%* продлил подписку'
     error: 'Ошибка платежа'
