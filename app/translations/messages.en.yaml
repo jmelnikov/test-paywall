@@ -1,0 +1,25 @@
+success:
+  request: 'Successful request for payment gateway %gateway%'
+payment:
+  authorized: 'Payment authorized'
+  confirmed: 'Payment confirmed'
+  rejected: 'Payment rejected'
+  refunded: 'Payment refunded'
+
+subscription:
+  new: 'User %user_id% paid for subscription'
+  renew: 'User %user_id% renewed subscription'
+
+error:
+  request:
+    invalid: 'Invalid request'
+    empty: 'Empty request'
+  payment:
+    invalid_token: 'Invalid payment token. Test token format: digits-dash-digits.'
+    unknown_status: 'Unknown payment status'
+    invalid_order_id: 'Invalid order ID'
+    invalid_amount: 'Invalid payment amount'
+    invalid_error_code: 'Invalid payment error code'
+    invalid_user_id: 'Invalid user ID'
+    unknown_currency: 'Unknown payment currency'
+    unknown_language: 'Unknown payment language'

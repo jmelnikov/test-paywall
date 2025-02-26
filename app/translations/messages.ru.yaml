@@ -1,0 +1,25 @@
+success:
+  request: 'Успешный запрос для платёжного шлюза %gateway%'
+payment:
+  authorized: 'Платёж авторизован'
+  confirmed: 'Платёж подтверждён'
+  rejected: 'Платёж отклонён'
+  refunded: 'Платёж возвращён'
+
+subscription:
+  new: 'Пользователь %user_id% оплатил подписку'
+  renew: 'Пользователь %user_id% продлил подписку'
+
+error:
+  request:
+    invalid: 'Неверный запрос'
+    empty: 'Пустой запрос'
+  payment:
+    invalid_token: 'Неверный токен платежа. Формат тестового токена: цифры-дефис-цифры.'
+    unknown_status: 'Неизвестный статус платежа'
+    invalid_order_id: 'Неверный идентификатор заказа'
+    invalid_amount: 'Неверная сумма платежа'
+    invalid_error_code: 'Некорректный код ошибки платежа'
+    invalid_user_id: 'Неверный идентификатор пользователя'
+    unknown_currency: 'Неизвестная валюта платежа'
+    unknown_language: 'Неизвестный язык платежа'
