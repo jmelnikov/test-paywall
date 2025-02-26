@@ -10,13 +10,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SecondPaymentHandler implements PaymentHandlerInterface
 {
+    // Здесь мапить статусы самих на себя излишне, но для единообразия оставил.
     private const array PAYMENT_STATUSES = [
-        'success',
-        'error',
-    ];
-
-    // Так как статусы платежей могут быть разными, делаю маппинг на два основных статуса.
-    private const array PAYMENT_STATUSES_MAP = [
         'success' => 'success',
         'error' => 'error',
     ];
@@ -77,7 +72,7 @@ class SecondPaymentHandler implements PaymentHandlerInterface
     {
         $this->paymentData['status'] = $request->request->get('status');
 
-        if (!in_array($this->paymentData['status'], static::PAYMENT_STATUSES)) {
+        if (!in_array($this->paymentData['status'], array_keys(static::PAYMENT_STATUSES))) {
             throw new Exception($this->translator->trans('error.payment.unknown_status',
                 [], 'messages'));
         }
@@ -94,7 +89,7 @@ class SecondPaymentHandler implements PaymentHandlerInterface
         // Но я просто передаю в PaymentProcessor ID пользователя и статус платежа.
         $this->paymentProcessor->processPayment(
             $this->paymentData['user_id'],
-            static::PAYMENT_STATUSES_MAP[$this->paymentData['status']]
+            static::PAYMENT_STATUSES[$this->paymentData['status']]
         );
     }
 }
