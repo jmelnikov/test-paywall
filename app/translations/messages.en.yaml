@@ -1,12 +1,6 @@
 success:
   request: 'Successful request for payment gateway %gateway%'
 
-payment:
-  authorized: 'Payment authorized'
-  confirmed: 'Payment confirmed'
-  rejected: 'Payment rejected'
-  refunded: 'Payment refunded'
-
 error:
   request:
     invalid: 'Invalid request'

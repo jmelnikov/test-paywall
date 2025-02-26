@@ -1,12 +1,6 @@
 success:
   request: 'Успешный запрос для платёжного шлюза %gateway%'
 
-payment:
-  authorized: 'Платёж авторизован'
-  confirmed: 'Платёж подтверждён'
-  rejected: 'Платёж отклонён'
-  refunded: 'Платёж возвращён'
-
 error:
   request:
     invalid: 'Неверный запрос'
