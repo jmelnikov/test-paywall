@@ -79,14 +79,18 @@ readonly class PaymentHandler implements PaymentHandlerInterface
      */
     private function validateLanguageCode(): void
     {
+        // Получаем язык из параметров платежа.
+        // Если его нет, то используем русский язык по умолчанию.
+        $languageCode = $this->paymentData['language_code'] ?? 'ru';
+
         // Проверяем, что язык известен.
-        if (!in_array($this->paymentData['language_code'], static::PAYMENT_LANGUAGES)) {
+        if (!in_array($languageCode, static::PAYMENT_LANGUAGES)) {
             throw new Exception($this->translator->trans('error.payment.unknown_language',
                 [], 'messages'));
         }
 
         // Здесь устанавливаем локаль для всего приложения.
-        $this->localeSwitcher->setLocale($this->paymentData['language_code']);
+        $this->localeSwitcher->setLocale($languageCode);
     }
 
     /**
