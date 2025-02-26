@@ -15,7 +15,7 @@ class User
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column]
+    #[ORM\Column(type: 'bigint', nullable: true)]
     private ?int $tg_id = null;
 
     /**
