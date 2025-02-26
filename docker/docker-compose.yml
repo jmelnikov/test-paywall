@@ -22,7 +22,25 @@ services:
     restart: always
     command: >
       sh -c "composer install &&
+             php bin/console doctrine:migrations:migrate --no-interaction &&
              php-fpm"
+
+  worker:
+    build:
+      context: ./app
+    volumes:
+      - ../app:/var/www
+      - ./app/php.ini:/usr/local/etc/php/conf.d/php.ini
+    container_name: ${PROJECT_NAME}-worker
+    restart: always
+    depends_on:
+      - redis
+      - mysql
+      - app
+    # Запускаем команду для обработки сообщений из очереди с тайм-лимитом в 1 час.
+    # Это нужно для того, чтобы процесс не съедал слишком много памяти и не умирал.
+    command: >
+      sh -c "php bin/console messenger:consume telegram_notifications --time-limit=3600"
 
   mysql:
     image: mysql:8.0

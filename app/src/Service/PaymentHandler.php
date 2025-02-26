@@ -2,18 +2,20 @@
 
 namespace App\Service;
 
+use App\Service\Interface\PaymentHandlerInterface;
 use Exception;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-readonly class PaymentHandler
+readonly class PaymentHandler implements PaymentHandlerInterface
 {
     private const array PAYMENT_STATUSES = [
-        'authorized',
-        'confirmed',
-        'rejected',
-        'refunded',
+        'authorized' => 'success',
+        'confirmed' => 'success',
+        'rejected' => 'error',
+        'refunded' => 'error',
     ];
 
     private const array PAYMENT_CURRENCIES = [
@@ -38,14 +40,14 @@ readonly class PaymentHandler
     }
 
     /**
-     * @param string $jsonData
+     * @param Request $request
      * @return void
      * @throws ExceptionInterface
      * @throws Exception
      */
-    public function handlePaymentJson(string $jsonData): void
+    public function handlePayment(Request $request): void
     {
-        $this->paymentData = json_decode($jsonData, true);
+        $this->paymentData = json_decode($request->getContent(), true);
 
         if (empty($this->paymentData)) {
             throw new Exception($this->translator->trans('error.request.empty',
@@ -57,13 +59,14 @@ readonly class PaymentHandler
         $this->validateLanguageCode();
 
         // Проверяем все остальные параметры платежа.
+        // Сейчас я выбрасываю исключение для каждой ошибки в отдельности.
+        // В реальном проекте можно сделать накопление ошибок и возвращаться их списком.
         $this->validateToken();
         $this->validateStatus();
         $this->validateOrderId();
         $this->validateAmount();
         $this->validateCurrency();
         $this->validateErrorCode();
-        // Значение pan не проверяем
         $this->validateUserId();
 
         // Обрабатываем платеж
@@ -76,11 +79,13 @@ readonly class PaymentHandler
      */
     private function validateLanguageCode(): void
     {
-        if (!in_array($this->paymentData['language_code'], self::PAYMENT_LANGUAGES)) {
+        // Проверяем, что язык известен.
+        if (!in_array($this->paymentData['language_code'], static::PAYMENT_LANGUAGES)) {
             throw new Exception($this->translator->trans('error.payment.unknown_language',
                 [], 'messages'));
         }
 
+        // Здесь устанавливаем локаль для всего приложения.
         $this->localeSwitcher->setLocale($this->paymentData['language_code']);
     }
 
@@ -103,7 +108,8 @@ readonly class PaymentHandler
      */
     private function validateStatus(): void
     {
-        if (!in_array($this->paymentData['status'], self::PAYMENT_STATUSES)) {
+        // Проверяем, что статус платежа известен.
+        if (!in_array($this->paymentData['status'], array_keys(static::PAYMENT_STATUSES))) {
             throw new Exception($this->translator->trans('error.payment.unknown_status',
                 [], 'messages'));
         }
@@ -115,6 +121,7 @@ readonly class PaymentHandler
      */
     private function validateOrderId(): void
     {
+        // Проверяем, что ID заказа состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['order_id'])) {
             throw new Exception($this->translator->trans('error.payment.invalid_order_id',
                 [], 'messages'));
@@ -127,6 +134,7 @@ readonly class PaymentHandler
      */
     private function validateAmount(): void
     {
+        // Проверяем, что сумма платежа состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['amount'])) {
             throw new Exception($this->translator->trans('error.payment.invalid_amount',
                 [], 'messages'));
@@ -139,7 +147,8 @@ readonly class PaymentHandler
      */
     private function validateCurrency(): void
     {
-        if (!in_array($this->paymentData['currency'], self::PAYMENT_CURRENCIES)) {
+        // Проверяем, что валюта платежа известна.
+        if (!in_array($this->paymentData['currency'], static::PAYMENT_CURRENCIES)) {
             throw new Exception($this->translator->trans('error.payment.unknown_currency',
                 [], 'messages'));
         }
@@ -151,6 +160,7 @@ readonly class PaymentHandler
      */
     private function validateErrorCode(): void
     {
+        // Проверяем, что код ошибки платежа состоит только из цифр или равен null.
         if (!preg_match('/^\d+$/', $this->paymentData['error_code']) && $this->paymentData['error_code'] !== null) {
             throw new Exception($this->translator->trans('error.payment.invalid_error_code',
                 [], 'messages'));
@@ -163,6 +173,7 @@ readonly class PaymentHandler
      */
     private function validateUserId(): void
     {
+        // Проверяем, что ID пользователя состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['user_id'])) {
             throw new Exception($this->translator->trans('error.payment.invalid_user_id',
                 [], 'messages'));
@@ -177,10 +188,10 @@ readonly class PaymentHandler
     {
         // Здесь можно что угодно делать с данными платежа.
         // Например, сохранить его в лог платежей.
-        // Но я просто передаю данные в PaymentProcessor для обработки.
+        // Но я просто передаю в PaymentProcessor ID пользователя и статус платежа.
         $this->paymentProcessor->processPayment(
             $this->paymentData['user_id'],
-            $this->paymentData['status']
+            static::PAYMENT_STATUSES[$this->paymentData['status']]
         );
     }
 }

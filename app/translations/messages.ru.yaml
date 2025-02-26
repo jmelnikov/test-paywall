@@ -1,14 +1,11 @@
 success:
   request: 'Успешный запрос для платёжного шлюза %gateway%'
+
 payment:
   authorized: 'Платёж авторизован'
   confirmed: 'Платёж подтверждён'
   rejected: 'Платёж отклонён'
   refunded: 'Платёж возвращён'
-
-subscription:
-  new: 'Пользователь %user_id% оплатил подписку'
-  renew: 'Пользователь %user_id% продлил подписку'
 
 error:
   request:
@@ -23,3 +20,10 @@ error:
     invalid_user_id: 'Неверный идентификатор пользователя'
     unknown_currency: 'Неизвестная валюта платежа'
     unknown_language: 'Неизвестный язык платежа'
+
+telegram:
+  notification:
+    success:
+      new: 'Пользователь %user_id% оплатил подписку'
+      renew: 'Пользователь %user_id% продлил подписку'
+    error: 'Ошибка платежа'

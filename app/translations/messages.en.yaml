@@ -1,14 +1,11 @@
 success:
   request: 'Successful request for payment gateway %gateway%'
+
 payment:
   authorized: 'Payment authorized'
   confirmed: 'Payment confirmed'
   rejected: 'Payment rejected'
   refunded: 'Payment refunded'
-
-subscription:
-  new: 'User %user_id% paid for subscription'
-  renew: 'User %user_id% renewed subscription'
 
 error:
   request:
@@ -23,3 +20,10 @@ error:
     invalid_user_id: 'Invalid user ID'
     unknown_currency: 'Unknown payment currency'
     unknown_language: 'Unknown payment language'
+
+  telegram:
+    notification:
+      success:
+        new: 'User %user_id% paid for subscription'
+        renew: 'User %user_id% renewed subscription'
+      error: 'Payment error'
