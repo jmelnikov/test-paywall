@@ -18,12 +18,18 @@ class SecondPaymentHandler implements PaymentHandlerInterface
 
     // Массив с данными платежа
     private array $paymentData;
+    private int $errorCode = 500;
 
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly PaymentProcessor    $paymentProcessor,
     )
     {
+    }
+
+    public function getErrorCode(): int
+    {
+        return $this->errorCode;
     }
 
     /**
@@ -53,11 +59,13 @@ class SecondPaymentHandler implements PaymentHandlerInterface
             $this->paymentData['user_id'] = $request->request->getInt('user_id');
         } catch (Exception $exception) {
             // Здесь может выброшено исключение, если пользователь в ID не передал число.
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_user_id',
                 [], 'messages'));
         }
 
         if ($this->paymentData['user_id'] === 0) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_user_id',
                 [], 'messages'));
         }
@@ -73,6 +81,7 @@ class SecondPaymentHandler implements PaymentHandlerInterface
         $this->paymentData['status'] = $request->request->get('status');
 
         if (!in_array($this->paymentData['status'], array_keys(static::PAYMENT_STATUSES))) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.unknown_status',
                 [], 'messages'));
         }

@@ -9,7 +9,7 @@ use Symfony\Component\Messenger\Exception\ExceptionInterface;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-readonly class PaymentHandler implements PaymentHandlerInterface
+class PaymentHandler implements PaymentHandlerInterface
 {
     private const array PAYMENT_STATUSES = [
         'authorized' => 'success',
@@ -29,14 +29,21 @@ readonly class PaymentHandler implements PaymentHandlerInterface
         'en',
     ];
 
+    private int $errorCode = 500;
+
     private array $paymentData;
 
     public function __construct(
-        private TranslatorInterface $translator,
-        private LocaleSwitcher      $localeSwitcher,
-        private PaymentProcessor    $paymentProcessor,
+        private readonly TranslatorInterface $translator,
+        private readonly LocaleSwitcher      $localeSwitcher,
+        private readonly PaymentProcessor    $paymentProcessor,
     )
     {
+    }
+
+    public function getErrorCode(): int
+    {
+        return $this->errorCode;
     }
 
     /**
@@ -47,11 +54,15 @@ readonly class PaymentHandler implements PaymentHandlerInterface
      */
     public function handlePayment(Request $request): void
     {
-        $this->paymentData = json_decode($request->getContent(), true);
 
-        if (empty($this->paymentData)) {
+        $data = json_decode($request->getContent(), true);
+
+        if (empty($data)) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.request.empty',
                 [], 'messages'));
+        } else {
+            $this->paymentData = $data;
         }
 
         // В первую очередь вызываем проверку языка пользователя.
@@ -85,6 +96,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
 
         // Проверяем, что язык известен.
         if (!in_array($languageCode, static::PAYMENT_LANGUAGES)) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.unknown_language',
                 [], 'messages'));
         }
@@ -101,6 +113,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Тест проверяет только формат токена "цифры-дефис-цифры".
         if (!preg_match('/^\d+-\d+$/', $this->paymentData['token'])) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_token',
                 [], 'messages'));
         }
@@ -114,6 +127,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что статус платежа известен.
         if (!in_array($this->paymentData['status'], array_keys(static::PAYMENT_STATUSES))) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.unknown_status',
                 [], 'messages'));
         }
@@ -127,6 +141,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что ID заказа состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['order_id'])) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_order_id',
                 [], 'messages'));
         }
@@ -140,6 +155,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что сумма платежа состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['amount'])) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_amount',
                 [], 'messages'));
         }
@@ -153,6 +169,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что валюта платежа известна.
         if (!in_array($this->paymentData['currency'], static::PAYMENT_CURRENCIES)) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.unknown_currency',
                 [], 'messages'));
         }
@@ -166,6 +183,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что код ошибки платежа состоит только из цифр или равен null.
         if (!preg_match('/^\d+$/', $this->paymentData['error_code']) && $this->paymentData['error_code'] !== null) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_error_code',
                 [], 'messages'));
         }
@@ -179,6 +197,7 @@ readonly class PaymentHandler implements PaymentHandlerInterface
     {
         // Проверяем, что ID пользователя состоит только из цифр.
         if (!preg_match('/^\d+$/', $this->paymentData['user_id'])) {
+            $this->errorCode = 400;
             throw new Exception($this->translator->trans('error.payment.invalid_user_id',
                 [], 'messages'));
         }

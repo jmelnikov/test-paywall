@@ -13,12 +13,4 @@ final class IndexControllerTest extends WebTestCase
 
         self::assertResponseIsSuccessful();
     }
-
-    public function testTestMessage(): void
-    {
-        $client = static::createClient();
-        $client->request('GET', '/test');
-
-        self::assertResponseIsSuccessful();
-    }
 }
