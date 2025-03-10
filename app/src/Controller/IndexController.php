@@ -21,7 +21,7 @@ final class IndexController extends AbstractController
     {
     }
 
-    #[Route(path: '/test', name: 'test', methods: ['POST'])]
+    #[Route(path: '/test-json', name: 'test', methods: ['POST'])]
     public function test(PaymentHandler $paymentHandler, Request $request): JsonResponse
     {
         try {
@@ -41,7 +41,7 @@ final class IndexController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/test2', name: 'test2', methods: ['POST'])]
+    #[Route(path: '/test-form', name: 'test2', methods: ['POST'])]
     public function test2(SecondPaymentHandler $paymentSecondHandler, Request $request): JsonResponse
     {
         try {
